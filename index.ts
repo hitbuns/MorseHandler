@@ -1,8 +1,5 @@
 import {generate} from "random-words";
 
-
-const soundPlayer = require("node-wav-player")
-
 const index = [
     "-----",
     ".----",
