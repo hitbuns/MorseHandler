@@ -44,7 +44,7 @@ const index = [
 
 // SETTINGS
 
-const slowModifier = 1;
+let slowModifier = 1;
 
 //
 
@@ -91,6 +91,9 @@ async function playMorse(morseString : string) {
         if (string === "|") await wait(Math.round(400 * slowModifier))
         if (string === " ") await wait(Math.round(600 * slowModifier))
     }
+
+    console.log(`${prefix} End of Morse Sequence...`)
+    recurse()
 }
 
 export function wait(ms: number) {
@@ -133,6 +136,7 @@ function recurse() {
                 !quit - To quit this morse hub
                 !generate [minLength] [maxLength] [wordCount] - To generate a new challenge for morse with minLength maxLength and wordCount as optional parameters
                 !replay - Used to replay an active challenge morse!
+                !slow [slowModifier] - Sets the speed that the morse is played at
                 `
             )
         }
@@ -163,6 +167,31 @@ function recurse() {
                 return;
             }
             playMorse(challenge.morse)
+            return;
+        }
+
+        if (s.startsWith("!slow")) {
+
+            const args = s.split(" ");
+
+            if (args.length <= 1) {
+                console.log("You must provide a slow modifier value (e.g. 1,1.25,...). Usage: !slow [SlowModifier]");
+                recurse()
+                return;
+            }
+
+            const slow = parseFloat(args[1]);
+
+            if (!slow || Number.isNaN(slow)) {
+                console.log("You must provide a slow modifier value (e.g. 1,1.25,...). Usage: !slow [SlowModifier]");
+                recurse()
+                return;
+            }
+
+            console.log(`${prefix} Slow applied at modifier ${slow}x`)
+            slowModifier = slow;
+            recurse()
+
             return;
         }
 
