@@ -2,6 +2,7 @@ import {generate} from "random-words";
 
 
 const soundPlayer = require("node-wav-player")
+let v = 0;
 
 const index = [
     "-----",
@@ -49,6 +50,10 @@ let slowModifier = 1;
 //
 
 console.log("Welcome to the Morse Hub. Type !help to gather the list of commands!");
+slowModifier = 0.5
+const morse = convertPhraseToMorse("SOS");
+let firstAction = true;
+intro()
 
 function letterToNumber(char : string | number) {
     return typeof char === "number" ? char : char.toUpperCase().charCodeAt(0)-55
@@ -56,6 +61,17 @@ function letterToNumber(char : string | number) {
 
 function convertLetterToMorse(char : string | number) {
     return index[letterToNumber(char)]
+}
+
+async function intro() {
+
+    if (firstAction) {
+        await playMorse(morse,true)
+        await wait(3000)
+
+        await intro();
+    }
+
 }
 
 function convertPhraseToMorse(phrase : string) {
@@ -66,17 +82,17 @@ function convertPhraseToMorse(phrase : string) {
     return ff.substring(0,ff.length-1)
 }
 
-
-let v = 0;
-async function playMorse(morseString : string) {
+async function playMorse(morseString : string,ignore?: boolean) {
     const id = ++v;
 
-    for (let i = 3; i > 0; i--) {
-        console.log(`Morse sequence starts in ${i}...`);
-        await wait(1000)
-    }
+    if (!ignore) {
+        for (let i = 3; i > 0; i--) {
+            console.log(`Morse sequence starts in ${i}...`);
+            await wait(1000)
+        }
 
-    recurse()
+        recurse()
+    }
 
     const split = morseString.split("");
     for (let string of split) {
@@ -92,7 +108,7 @@ async function playMorse(morseString : string) {
         if (string === " ") await wait(Math.round(600 * slowModifier))
     }
 
-    console.log(`${prefix} End of Morse Sequence...`)
+    if (!ignore) console.log(`${prefix} End of Morse Sequence...`)
     recurse()
 }
 
@@ -126,6 +142,12 @@ const int = readLine.createInterface({
 
 function recurse() {
     int.question(`${new Date(Date.now()).toLocaleString()} - ${prefix}`,(answer : string) => {
+
+        if (firstAction) {
+            v++;
+            firstAction = false;
+            slowModifier = 1;
+        }
 
         const s = answer.toLowerCase();
 
